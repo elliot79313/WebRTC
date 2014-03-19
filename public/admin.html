@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>WebRTC + WebSocket</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+        <script src="js/adapter.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="js/jquery-1.11.0.min.js"></script>
+        <script>
+			
+        </script>
+        <script>
+			var domain =location.protocol +"//"+ location.host+"/";
+			var socket = io.connect(domain);
+		
+				// on connection to server, ask for user's name with an anonymous callback
+				socket.on('connect', function(){
+				  // call the server-side function 'adduser' and send one parameter (value of prompt)
+				  //var str;
+				  //while ((str=prompt("你的名子是?(一定要有id)"))=="");
+		
+				  //socket.emit('adduser', str );
+		
+				});
+		
+				// listener, whenever the server emits 'updatechat', this updates the chat body
+				socket.on('updatechat', function (username, data) {
+				  //$('#conversation').append('<b>'+username + ':</b> ' + data + '<br>');
+				});
+				
+				
+		
+				// listener, whenever the server emits 'updateusers', this updates the username list
+				socket.on('updateusers', function(data) {
+				  $('#users').empty();
+				  $.each(data, function(key, value) {
+					  $('#users').append('<div>' + key + '</div>');
+				  });
+				});
+		
+			// on load of page
+			$(function(){
+				 // when the client clicks SEND
+				 $('#datasend').click( function() {
+					var message = $('#data').val();
+								  $('#data').val('');
+					// tell server to execute 'sendchat' and send along one parameter
+					socket.emit('sendchat', message);
+				 });
+		
+				 // when the client hits ENTER on their keyboard
+				  $('#data').keypress(function(e) {
+					  if(e.which == 13) {
+						  $(this).blur();
+						  $('#datasend').focus().click();
+					   }
+				  });
+			  });
+		
+		</script>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>WebRTC + WebSocket</h1>
+					<h3>用JS享受視訊的美好</h3>
+					<p>
+						<small>Presented by <a href="http://hakim.se">Shih-En Chou</a></small>
+					</p>
+				</section>
+				<section>
+	                <h2>WebSockets</h2>
+                    <div><img src="images/poll-ws-compare.gif"/></div>
+                </section>
+                
+                <section>
+                  <h2>WebSockets</h2>
+                  <div class="left-align">
+                    <dl>
+                      <dt>在瀏覽器內</dt><dd>提供一個protocol讓Client與Server端做雙向溝通</dd>
+                      <br/>
+                      <dt>支援度</dt><dd>Chrome Desktop 23+,<wbr/> Firefox 22+, <wbr/>Opera 18+, <wbr/> Chrome 29+,<wbr/> Opera Mobile 12+</dd>
+                    </dl>
+                  </div>
+        
+                  <aside class="notes">
+                  </aside>
+                </section>
+                
+                
+                
+				<section>
+                  <div><img src="./images/webrtcLogo.png" /></div>
+                  <div>This is a developing standard in webpages to get data from your webcam and your microphone.</div>
+                  <br/>
+                  <p>為什麼Logo五彩繽紛?</p>
+        
+                  <aside class="notes">
+                  <p>為什麼Logo五彩繽紛?</p>
+                  </aside>
+                </section>
+                
+                
+
+				<!-- Example of nested vertical slides -->
+				<section>
+					<section>
+						<h2>WebSockets</h2>
+						<div class="left-align" id="websockets-about">
+                          <p>Client opens connection with server</p>
+                          <p>Client and server send data to each other as data becomes available on either side</p>
+                        </div>
+                        <img style="max-height:50%;" src="./images/websockets.png" />
+                        <div>&darr;</div>
+					</section>
+					<section>
+						<h2>Create Sockets(Client Side)</h2>
+						<p>
+                        <pre><code data-trim contenteditable>
+  var connection = new WebSocket('ws://subdomain.examnple.com/some-endpoint')
+            </code></pre>
+            </p>
+            <div>&darr;</div>
+					</section>
+					
+					<section>
+						<h2>WebSocket events(Client Side)</h2>
+                        <pre><code data-trim contenteditable>
+connection.onopen = function(e) {
+  console.log("Connected");
+};
+
+connection.onmessage = function(e) {
+  console.log( "Received: " + e.data);
+};
+
+connection.onclose = function(e) {
+  console.log("Connection closed");
+};
+                        </code></pre>
+                        <div>&darr;</div>
+					</section>
+                    <section>
+                      <h2>Cross-domain</h2>
+                      <div class="left-align">
+                        <p>
+                          WebSockets is cross-domain by default
+                        </p>
+                        <p>
+                          Up to you to optionally restrict domain access on server via <code>Origin</code> header
+                        </p>
+                      </div>
+                      
+                    </section>
+                    <section>
+                      <h2>Extensibility</h2>
+                      <div class="left-align">
+                        <p>
+                          Built-in method for defining WebSocket extensions via RFC
+                        </p>
+                        <p>
+                          Current extensions include
+                          <a href="http://tools.ietf.org/html/draft-tyoshino-hybi-websocket-perframe-deflate-05">perframe-deflate</a> and
+                          <a href="http://tools.ietf.org/html/draft-ietf-hybi-websocket-multiplexing-10">multiplexing</a>
+                        </p>
+                      </div>
+                      
+                    </section>
+                    <section>
+                      <h2>Proxies</h2>
+                      <div class="left-align">
+                        <p>
+                          Using <code>ws</code> in production can cause WebSockets communication to fail due to invisible proxies that can't do WebSockets
+                        </p>
+                        <p>
+                          Using <code>wss</code> forces browser to issue <code>HTTP_CONNECT</code> statement to proxy server, which sets up tunnel
+                        </p>
+                        <p>
+                          So use <code>wss</code> in production
+                        </p>
+                      </div>
+                    </section>
+                    <section>
+                      <h2>Server-Side Support</h2>
+                      <div class="left-align">
+                        <p>
+                          Python: <a href="_blank" href="https://pypi.python.org/pypi/gevent-websocket/">https://pypi.python.org/pypi/gevent-websocket/</a>
+                        </p>
+                        <p>
+                          NodeJS <a href="_blank" href="http://socket.io/">http://socket.io/</a>
+                        </p>
+                        <p>
+                          Java <a href="_blank" href="http://tomcat.apache.org/tomcat-7.0-doc/web-socket-howto.html">http://tomcat.apache.org/tomcat-7.0-doc/web-socket-howto.html</a>
+                        </p>
+                        <p>
+                          php <a href="_blank" href="http://tomcat.apache.org/tomcat-7.0-doc/web-socket-howto.html">http://tomcat.apache.org/tomcat-7.0-doc/web-socket-howto.html</a>
+                        </p>
+                      </div>
+                    </section>
+                    <section>
+                    	<h1>Socket.IO is awesome!</h1>
+                    </section>
+				</section>
+
+				<section>
+                	<section>
+						<h2>WebRTC</h2>
+						<div><img src="./images/webrtc-complete-diagram.png" /></div>
+                    </section>
+                    <section>
+						<h2>WebRTC 是P2P</h2>
+                    </section>
+                    <section>
+                    	<h2>一群人在立法院也可以收看</h2>
+						<video id="sv" width="45%" autoplay muted="true"></video>
+                        <video id="rv" width="45%" autoplay muted="true"></video>
+                    </section>
+                    <section>
+	                    <h3>Initialize Connection</h3>
+						<pre><code data-trim contenteditable>
+pc = new RTCPeerConnection(configuration);
+
+pc.onnegotiationneeded = function () {
+    pc.createOffer(localDescCreated, logError);
+}
+
+                        </code></pre>
+                    </section>
+                    <section>
+                    	<h3>Build Connection</h3>
+						<pre><code data-trim contenteditable style="max-height:450px;">
+
+//offer
+pc.setLocalDescription(desc, function () {
+  socket.emit('sendrtc', JSON.stringify({
+    'sdp': pc.localDescription
+  }));
+
+}, logError);
+
+//answer
+pc.setRemoteDescription(new RTCSessionDescription(message.sdp), 
+	function () {
+  // if we received an offer, we need to answer
+  if (pc.remoteDescription.type == 'offer')
+    pc.createAnswer(localDescCreated, logError);
+}, logError);
+
+//Candidate:
+pc.addIceCandidate(new RTCIceCandidate(message.candidate));
+
+                        </code></pre>
+                    </section>
+                    <section>
+						<h2>WebRTC 的痛苦點...</h2>
+                        <ol>
+							<li class="fragment">Offer 和 Answer 原則上是不同session</li>
+							<li class="fragment">建立聊天室, 總共有N*(N-1)/2 個 Connection</li>
+							<li class="fragment">RTCPeerConnection 貌似Chrome 不work</li>
+                            <li class="fragment">你需要一個 adapter</li>
+						</ol>
+                    </section>
+                    <section>
+                    	<h2>STUN Server</h2>
+                        <div>STUN: Session Traversal Utilities for NAT</div>
+                        <div>Build your own stun server: <a href="http://www.stunprotocol.org/">http://www.stunprotocol.org/</a></div>
+                    </section>
+				</section>
+
+
+	
+
+
+				
+
+				
+
+				<section>
+					<h2>那傳檔案呢</h2>
+					<p>HTML5 有了Blob API</p>
+                    <p>直接把WebSocket 與Blob 接起來就好了</p>
+                    <pre><code data-trim contenteditable>
+                    var img = canvas_context.getImageData(0, 0, 400, 320);
+var binary = new Uint8Array(img.data.length);
+for (var i = 0; i < img.data.length; i++) {
+  binary[i] = img.data[i];
+}
+connection.send(binary.buffer);
+</code></pre>
+<br/>
+					<pre><code data-trim contenteditable>
+                    var file = document.querySelector('input[type="file"]').files[0];
+connection.send(file);
+</code></pre>
+				</section>
+	
+				
+
+				<section>
+                	<div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    
+                                    <th>WebSockets</th>
+                                    <th>WebRTC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr></tr>
+                                <tr></tr>
+                                <tr>
+                                    <td>方便broadcast</td>
+                                    <td>1-to-1 Connection</td>
+                                </tr>
+                                <tr>
+                                    <td>傳文字, blob</td>
+                                    <td>傳stream</td>
+                                </tr>
+                                <tr>
+                                    <td>方便debug</td>
+                                    <td>不易找錯...</td>
+                                </tr>
+                            </tbody>
+                         </table>
+                     </div>
+				</section>
+
+				<section>
+					<h2>P2P 傳文字呢?</h2>
+					<p></p>
+				</section>
+				<section>
+					<h2>RTCDataChannel</h2>
+					<pre><code data-trim contenteditable>
+offerer = new RTCPeerConnection(configuration);
+
+
+var channel = offerer.createDataChannel('RTCDataChannel', {
+    reliable: false
+});
+channel.onmessage = function (event) {
+    console.debug(channelNameForConsoleOutput, 
+    'received a message:', event.data);
+};
+
+channel.onopen = function () {
+    channel.send('first text message over RTP data ports');
+};
+
+                     </code></pre>
+				</section>
+				<section>
+					<h1>THE END</h1>
+					<strong>Follow me on <a href="https://github.com/elliot79313">Github@Shih-En Chou</a></strong>
+				</section>
+                
+                <section>
+					<h3>Reference</h3>
+					<div><a href="https://www.websocket.org/quantum.html">https://www.websocket.org/quantum.html</a></div>
+                    <div><a href="http://www.webrtc.org/">http://www.webrtc.org/</a></div>
+                    <div><a href="http://os.alfajango.com/websockets-slides/">http://os.alfajango.com/websockets-slides/</a></div>
+                    <div><a href="http://en.wikipedia.org/wiki/Session_Description_Protocol">http://en.wikipedia.org/wiki/Session_Description_Protocol</a></div>
+                    <div><a href="http://dev.w3.org/2011/webrtc/editor/webrtc.html#peer-to-peer-data-api">http://dev.w3.org/2011/webrtc/editor/webrtc.html#peer-to-peer-data-api</a></div>
+                    <div><a href="https://www.webrtc-experiment.com/docs/rtc-datachannel-for-beginners.html">https://www.webrtc-experiment.com/docs/rtc-datachannel-for-beginners.html</a></div>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+        
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			
+			Reveal.initialize({
+				keyboard: {
+					13: 'next' // go to the next slide when the ENTER key is pressed
+			    },
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+			Reveal.addEventListener( 'slidechanged', function( event ) {
+    			// event.previousSlide, event.currentSlide, event.indexh, event.indexv
+				socket.emit('sendslide', {"h": event.indexh ,"v": event.indexv });
+			});
+			socket.on('updateslide', function (data) {
+				  //console.log(data)
+				  Reveal.slide( data.h, data.v);
+		    });
+			
+			//var signalingChannel = new SignalingChannel();
+			var configuration = {
+			  'iceServers': [{
+				'url': 'stun:stun.l.google.com:19302'
+			  }]
+			};
+			var pc;
+			var selfView = document.getElementById("sv"),
+				remoteView = document.getElementById("rv");
+			// call start() to initiate
+			
+			function start() {
+			  pc = new RTCPeerConnection(configuration);
+			
+			  // send any ice candidates to the other peer
+			  pc.onicecandidate = function (evt) {
+				if (evt.candidate)
+				  socket.emit('sendrtc', JSON.stringify({
+					'candidate': evt.candidate
+				  }));
+				  
+			  };
+			
+			  // let the 'negotiationneeded' event trigger offer generation
+			  pc.onnegotiationneeded = function () {
+				pc.createOffer(localDescCreated, logError);
+			  }
+			
+			  // once remote stream arrives, show it in the remote video element
+			  pc.onaddstream = function (evt) {
+				remoteView.src = URL.createObjectURL(evt.stream);
+			  };
+			
+			  // get a local stream, show it in a self-view and add it to be sent
+			  navigator.getUserMedia({
+				'audio': true,
+				'video': true
+			  }, function (stream) {
+				selfView.src = URL.createObjectURL(stream);
+				pc.addStream(stream);
+			  }, logError);
+			}
+			
+			function localDescCreated(desc) {
+			  pc.setLocalDescription(desc, function () {
+				socket.emit('sendrtc', JSON.stringify({
+				  'sdp': pc.localDescription
+				}));
+				
+				
+			  }, logError);
+			}
+			socket.on('updatertc', function (data) {
+			  
+			  if (!pc)
+				start();
+			
+			  var message = JSON.parse(data);
+			  console.log(message);
+			  if (message.sdp)
+				pc.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
+				  // if we received an offer, we need to answer
+				  //if (pc.remoteDescription.type == 'offer')
+				  //	pc.createAnswer(localDescCreated, logError);
+				}, logError);
+			  else
+				pc.addIceCandidate(new RTCIceCandidate(message.candidate));
+		    });
+			
+						
+			function logError(error) {
+			  console.log(error);
+			}
+			
+			start();
+		</script>
+
+	</body>
+</html>
