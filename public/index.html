@@ -167,7 +167,7 @@ border-bottom: 1px solid;
 					</section>
 					
 					<section>
-						<h2>WebSocket events(Client Side)</h2>
+						<h2>WebSocket events(Client Side) and Method</h2>
                         <pre><code data-trim contenteditable>
 connection.onopen = function(e) {
   console.log("Connected");
@@ -180,6 +180,8 @@ connection.onmessage = function(e) {
 connection.onclose = function(e) {
   console.log("Connection closed");
 };
+
+connection.send("這是伺服器正迫切需要的文字！");
                         </code></pre>
                         <div>&darr;</div>
 					</section>
@@ -241,7 +243,8 @@ connection.onclose = function(e) {
                       </div>
                     </section>
                     <section>
-                    	<h1>Socket.IO is awesome!</h1>
+                    	<h2>Socket.IO </h2>
+                        <p>已經做出限定Event, 讓Message 根據Bind Event來傳遞訊息</p>
                     </section>
 				</section>
 
@@ -392,6 +395,7 @@ channel.onopen = function () {
     channel.send('first text message over RTP data ports');
 };
 
+channel.send("Hello Server!");
                      </code></pre>
 				</section>
 				<section>
@@ -423,6 +427,7 @@ channel.onopen = function () {
 			// https://github.com/hakimel/reveal.js#configuration
 			
 			Reveal.initialize({
+				/*
 				keyboard: {
 					13: null, // go to the next slide when the ENTER key is pressed
 					37: null,
@@ -431,7 +436,8 @@ channel.onopen = function () {
 					40: null,
 					27: null
 			    },
-				controls: false,
+				*/
+				controls: true,
 				progress: true,
 				history: true,
 				center: true,
